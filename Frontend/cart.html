@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kosár - SneekerWebShop</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a href="index.html" class="logo">Sneeker<span>WebShop</span></a>
+            <button class="menu-toggle" id="menuGomb" aria-label="Menü">&#9776;</button>
+            <nav id="fomenu">
+                <a href="index.html">Cipők</a>
+                <a href="cart.html">Kosár <span class="badge" id="kosarSzam">0</span></a>
+                <a href="orders.html" data-lathato="tag">Rendeléseim</a>
+                <a href="admin.html" data-lathato="admin">Admin</a>
+                <span class="user-label" id="felhasznaloNev" data-lathato="tag"></span>
+                <a href="login.html" data-lathato="vendeg">Belépés</a>
+                <a href="register.html" data-lathato="vendeg">Regisztráció</a>
+                <a href="#" id="kilepGomb" data-lathato="tag">Kilépés</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="uzenet" class="uzenet rejtett"></div>
+
+        <div class="oldal-fejlec">
+            <h1>Kosár</h1>
+            <p>A megrendeléshez be kell jelentkezned. Online fizetés nincs, a rendelést a boltban egyenlíted ki.</p>
+        </div>
+
+        <div id="kosarTartalom"></div>
+
+        <div class="osszegzo" id="osszegzo" style="display:none;">
+            <div class="osszegzo-sor">
+                <span>Tételek száma</span>
+                <span id="tetelSzam">0 db</span>
+            </div>
+            <div class="osszegzo-sor vegosszeg">
+                <span>Fizetendő</span>
+                <span id="vegosszeg">0 Ft</span>
+            </div>
+
+            <div class="mezo" style="margin-top:16px;">
+                <label for="szallitasiCim">Szállítási cím</label>
+                <input type="text" id="szallitasiCim" placeholder="1111 Budapest, Példa utca 1.">
+            </div>
+
+            <div class="gomb-sor">
+                <button class="gomb gomb-masodlagos" id="uritGomb">Kosár ürítése</button>
+                <button class="gomb" id="megrendelGomb">Megrendelés</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container">SneekerWebShop &copy; 2026 - vizsgaremek projekt</div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            kosarMegjelenites();
+
+            document.getElementById("uritGomb").onclick = () => {
+                if (confirm("Biztosan kiüríted a kosarat?")) {
+                    kosarUrites();
+                    kosarMegjelenites();
+                }
+            };
+
+            document.getElementById("megrendelGomb").onclick = megrendeles;
+
+            // A bejelentkezett felhasználó címét ajánljuk fel alapértelmezettként
+            const felhasznalo = aktualisFelhasznalo();
+            if (felhasznalo) {
+                document.getElementById("szallitasiCim").value = felhasznalo.address || "";
+            }
+        });
+
+        /** A kosár tartalmának kirajzolása. */
+        function kosarMegjelenites() {
+            const kosar = kosarBetolt();
+            const doboz = document.getElementById("kosarTartalom");
+            const osszegzo = document.getElementById("osszegzo");
+
+            if (kosar.length === 0) {
+                doboz.innerHTML = "<div class='ures'>A kosarad üres. <a href='index.html' style='color:#ef5b25;font-weight:600;'>Nézd meg a cipőinket!</a></div>";
+                osszegzo.style.display = "none";
+                return;
+            }
+
+            doboz.innerHTML = kosar.map(t => `
+                <div class="kosar-sor">
+                    <img src="${htmlVed(t.imageUrl)}" alt="${htmlVed(t.name)}"
+                         onerror="this.src='images/placeholder.png'">
+                    <div class="nev">${htmlVed(t.name)}</div>
+                    <div>${arFormaz(t.price)}</div>
+                    <input type="number" min="1" max="99" value="${t.quantity}" data-darab="${t.id}">
+                    <div><strong>${arFormaz(t.price * t.quantity)}</strong></div>
+                    <button class="gomb gomb-veszely gomb-kicsi" data-torles="${t.id}">Törlés</button>
+                </div>`).join("");
+
+            doboz.querySelectorAll("[data-darab]").forEach(mezo => {
+                mezo.onchange = () => {
+                    kosarDarabModositas(parseInt(mezo.dataset.darab, 10), mezo.value);
+                    kosarMegjelenites();
+                };
+            });
+
+            doboz.querySelectorAll("[data-torles]").forEach(gomb => {
+                gomb.onclick = () => {
+                    kosarbolTorol(parseInt(gomb.dataset.torles, 10));
+                    kosarMegjelenites();
+                };
+            });
+
+            osszegzo.style.display = "block";
+            document.getElementById("tetelSzam").textContent = kosarDarabszam() + " db";
+            document.getElementById("vegosszeg").textContent = arFormaz(kosarVegosszeg());
+        }
+
+        /** A kosárból objektum készítése és elküldése a szervernek mentésre. */
+        async function megrendeles() {
+            uzenetRejt();
+
+            if (!beVanLepve()) {
+                alert("A megrendeléshez be kell jelentkezned.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            const kosar = kosarBetolt();
+            if (kosar.length === 0) {
+                uzenetKiir("A kosár üres.", "hiba");
+                return;
+            }
+
+            const rendeles = {
+                shippingAddress: document.getElementById("szallitasiCim").value.trim(),
+                items: kosar.map(t => ({ productId: t.id, quantity: t.quantity }))
+            };
+
+            const gomb = document.getElementById("megrendelGomb");
+            gomb.disabled = true;
+
+            try {
+                const eredmeny = await apiKeres("/api/orders", { method: "POST", body: rendeles });
+                kosarUrites();
+                kosarMegjelenites();
+                uzenetKiir("Köszönjük! A rendelésedet rögzítettük, azonosító: #" + eredmeny.id +
+                    ", végösszeg: " + arFormaz(eredmeny.totalPrice) + ".", "siker");
+            } catch (hiba) {
+                uzenetKiir(hiba.message, "hiba");
+            } finally {
+                gomb.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

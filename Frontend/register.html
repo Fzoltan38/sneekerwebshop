@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regisztráció - SneekerWebShop</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a href="index.html" class="logo">Sneeker<span>WebShop</span></a>
+            <button class="menu-toggle" id="menuGomb" aria-label="Menü">&#9776;</button>
+            <nav id="fomenu">
+                <a href="index.html">Cipők</a>
+                <a href="cart.html">Kosár <span class="badge" id="kosarSzam">0</span></a>
+                <a href="orders.html" data-lathato="tag">Rendeléseim</a>
+                <a href="admin.html" data-lathato="admin">Admin</a>
+                <span class="user-label" id="felhasznaloNev" data-lathato="tag"></span>
+                <a href="login.html" data-lathato="vendeg">Belépés</a>
+                <a href="register.html" data-lathato="vendeg">Regisztráció</a>
+                <a href="#" id="kilepGomb" data-lathato="tag">Kilépés</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="uzenet" class="uzenet rejtett"></div>
+
+        <div class="urlap-doboz szeles">
+            <h1>Regisztráció</h1>
+            <p style="color:#6b7280; margin-top:0;">A regisztráció ingyenes, és azonnal vásárolhatsz.</p>
+
+            <form id="regisztracioUrlap">
+                <div class="mezo-sor">
+                    <div class="mezo">
+                        <label for="felhasznalonev">Felhasználónév *</label>
+                        <input type="text" id="felhasznalonev" required minlength="3" maxlength="50">
+                    </div>
+                    <div class="mezo">
+                        <label for="email">E-mail cím *</label>
+                        <input type="email" id="email" required maxlength="100">
+                    </div>
+                </div>
+
+                <div class="mezo-sor">
+                    <div class="mezo">
+                        <label for="jelszo">Jelszó *</label>
+                        <input type="password" id="jelszo" required minlength="4">
+                    </div>
+                    <div class="mezo">
+                        <label for="jelszo2">Jelszó megerősítése *</label>
+                        <input type="password" id="jelszo2" required minlength="4">
+                    </div>
+                </div>
+
+                <div class="mezo">
+                    <label for="teljesNev">Teljes név</label>
+                    <input type="text" id="teljesNev" maxlength="100" placeholder="Kovács Anna">
+                </div>
+
+                <div class="mezo-sor">
+                    <div class="mezo">
+                        <label for="cim">Szállítási cím</label>
+                        <input type="text" id="cim" maxlength="200" placeholder="1111 Budapest, Példa utca 1.">
+                    </div>
+                    <div class="mezo">
+                        <label for="telefon">Telefonszám</label>
+                        <input type="text" id="telefon" maxlength="30" placeholder="+36 30 123 4567">
+                    </div>
+                </div>
+
+                <button type="submit" class="gomb" style="width:100%;">Regisztráció</button>
+            </form>
+
+            <div class="urlap-lablec">
+                Van már fiókod? <a href="login.html">Lépj be itt</a>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container">SneekerWebShop &copy; 2026 - vizsgaremek projekt</div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById("regisztracioUrlap").addEventListener("submit", async e => {
+            e.preventDefault();
+            uzenetRejt();
+
+            const jelszo = document.getElementById("jelszo").value;
+            const jelszo2 = document.getElementById("jelszo2").value;
+
+            if (jelszo !== jelszo2) {
+                uzenetKiir("A két jelszó nem egyezik meg.", "hiba");
+                return;
+            }
+
+            const adatok = {
+                userName: document.getElementById("felhasznalonev").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                password: jelszo,
+                fullName: document.getElementById("teljesNev").value.trim(),
+                address: document.getElementById("cim").value.trim(),
+                phone: document.getElementById("telefon").value.trim()
+            };
+
+            try {
+                const eredmeny = await apiKeres("/api/auth/register", { method: "POST", body: adatok });
+
+                // A sikeres regisztráció után rögtön be is lépteti a szerver
+                bejelentkezesMentes(eredmeny);
+                window.location.href = "index.html";
+            } catch (hiba) {
+                uzenetKiir(hiba.message, "hiba");
+            }
+        });
+    </script>
+</body>
+
+</html>

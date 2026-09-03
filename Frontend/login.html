@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belépés - SneekerWebShop</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a href="index.html" class="logo">Sneeker<span>WebShop</span></a>
+            <button class="menu-toggle" id="menuGomb" aria-label="Menü">&#9776;</button>
+            <nav id="fomenu">
+                <a href="index.html">Cipők</a>
+                <a href="cart.html">Kosár <span class="badge" id="kosarSzam">0</span></a>
+                <a href="orders.html" data-lathato="tag">Rendeléseim</a>
+                <a href="admin.html" data-lathato="admin">Admin</a>
+                <span class="user-label" id="felhasznaloNev" data-lathato="tag"></span>
+                <a href="login.html" data-lathato="vendeg">Belépés</a>
+                <a href="register.html" data-lathato="vendeg">Regisztráció</a>
+                <a href="#" id="kilepGomb" data-lathato="tag">Kilépés</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="uzenet" class="uzenet rejtett"></div>
+
+        <div class="urlap-doboz">
+            <h1>Belépés</h1>
+            <p style="color:#6b7280; margin-top:0;">Add meg az e-mail címed és a jelszavad.</p>
+
+            <form id="belepesUrlap">
+                <div class="mezo">
+                    <label for="email">E-mail cím</label>
+                    <input type="email" id="email" required placeholder="pelda@email.hu">
+                </div>
+
+                <div class="mezo">
+                    <label for="jelszo">Jelszó</label>
+                    <input type="password" id="jelszo" required placeholder="Jelszó">
+                </div>
+
+                <button type="submit" class="gomb" style="width:100%;">Belépés</button>
+            </form>
+
+            <div class="urlap-lablec">
+                Még nincs fiókod? <a href="register.html">Regisztrálj itt</a>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container">SneekerWebShop &copy; 2026 - vizsgaremek projekt</div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById("belepesUrlap").addEventListener("submit", async e => {
+            e.preventDefault();
+            uzenetRejt();
+
+            const adatok = {
+                email: document.getElementById("email").value.trim(),
+                password: document.getElementById("jelszo").value
+            };
+
+            try {
+                const eredmeny = await apiKeres("/api/auth/login", { method: "POST", body: adatok });
+
+                // A kapott JWT tokent a localStorage-ba mentjük
+                bejelentkezesMentes(eredmeny);
+
+                // Admint az admin felületre, a többieket a kezdőlapra irányítjuk
+                window.location.href = eredmeny.user.role === "Admin" ? "admin.html" : "index.html";
+            } catch (hiba) {
+                uzenetKiir(hiba.message, "hiba");
+            }
+        });
+    </script>
+</body>
+
+</html>

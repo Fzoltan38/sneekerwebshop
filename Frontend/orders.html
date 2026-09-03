@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendeléseim - SneekerWebShop</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a href="index.html" class="logo">Sneeker<span>WebShop</span></a>
+            <button class="menu-toggle" id="menuGomb" aria-label="Menü">&#9776;</button>
+            <nav id="fomenu">
+                <a href="index.html">Cipők</a>
+                <a href="cart.html">Kosár <span class="badge" id="kosarSzam">0</span></a>
+                <a href="orders.html" data-lathato="tag">Rendeléseim</a>
+                <a href="admin.html" data-lathato="admin">Admin</a>
+                <span class="user-label" id="felhasznaloNev" data-lathato="tag"></span>
+                <a href="login.html" data-lathato="vendeg">Belépés</a>
+                <a href="register.html" data-lathato="vendeg">Regisztráció</a>
+                <a href="#" id="kilepGomb" data-lathato="tag">Kilépés</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="uzenet" class="uzenet rejtett"></div>
+
+        <div class="oldal-fejlec">
+            <h1>Rendeléseim</h1>
+            <p>Itt látod a korábban leadott megrendeléseidet és azok állapotát.</p>
+        </div>
+
+        <div id="rendelesLista"></div>
+
+    </main>
+
+    <footer>
+        <div class="container">SneekerWebShop &copy; 2026 - vizsgaremek projekt</div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Ez az oldal csak bejelentkezett tagoknak szól
+            if (!belepesSzukseges()) return;
+
+            const doboz = document.getElementById("rendelesLista");
+            doboz.innerHTML = "<p>Betöltés...</p>";
+
+            try {
+                const rendelesek = await apiKeres("/api/orders/my");
+
+                if (rendelesek.length === 0) {
+                    doboz.innerHTML = "<div class='ures'>Még nincs megrendelésed. " +
+                        "<a href='index.html' style='color:#ef5b25;font-weight:600;'>Vásárolj most!</a></div>";
+                    return;
+                }
+
+                doboz.innerHTML = rendelesek.map(r => `
+                    <div class="rendeles">
+                        <div class="rendeles-fejlec">
+                            <div>
+                                <strong>#${r.id} rendelés</strong><br>
+                                <span style="color:#6b7280;font-size:.9rem;">${datumFormaz(r.orderDate)}</span>
+                            </div>
+                            <div style="text-align:right;">
+                                <span class="cimke">${htmlVed(r.status)}</span><br>
+                                <strong>${arFormaz(r.totalPrice)}</strong>
+                            </div>
+                        </div>
+                        ${r.items.map(t => `
+                            <div class="rendeles-tetel">
+                                <span>${htmlVed(t.productName)} &times; ${t.quantity}</span>
+                                <span>${arFormaz(t.unitPrice * t.quantity)}</span>
+                            </div>`).join("")}
+                        <div style="margin-top:10px;font-size:.9rem;color:#6b7280;">
+                            Szállítási cím: ${htmlVed(r.shippingAddress) || "-"}
+                        </div>
+                    </div>`).join("");
+            } catch (hiba) {
+                doboz.innerHTML = "<div class='ures'>Nem sikerült betölteni a rendeléseket: " + htmlVed(hiba.message) + "</div>";
+            }
+        });
+    </script>
+</body>
+
+</html>

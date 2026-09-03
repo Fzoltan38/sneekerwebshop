@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin felület - SneekerWebShop</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a href="index.html" class="logo">Sneeker<span>WebShop</span></a>
+            <button class="menu-toggle" id="menuGomb" aria-label="Menü">&#9776;</button>
+            <nav id="fomenu">
+                <a href="index.html">Cipők</a>
+                <a href="cart.html">Kosár <span class="badge" id="kosarSzam">0</span></a>
+                <a href="orders.html" data-lathato="tag">Rendeléseim</a>
+                <a href="admin.html" data-lathato="admin">Admin</a>
+                <span class="user-label" id="felhasznaloNev" data-lathato="tag"></span>
+                <a href="login.html" data-lathato="vendeg">Belépés</a>
+                <a href="register.html" data-lathato="vendeg">Regisztráció</a>
+                <a href="#" id="kilepGomb" data-lathato="tag">Kilépés</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <div id="uzenet" class="uzenet rejtett"></div>
+
+        <div class="oldal-fejlec">
+            <h1>Adminisztrációs felület</h1>
+            <p>Termékek, megrendelések és felhasználók kezelése (CRUD műveletek).</p>
+        </div>
+
+        <div class="fulek">
+            <button class="ful aktiv" data-ful="termekek">Termékek</button>
+            <button class="ful" data-ful="rendelesek">Megrendelések</button>
+            <button class="ful" data-ful="felhasznalok">Felhasználók</button>
+        </div>
+
+        <!-- ---------------- Termékek ---------------- -->
+        <section class="lap aktiv" id="lap-termekek">
+            <div class="szekcio-fejlec">
+                <h2>Termékek</h2>
+                <button class="gomb" id="ujTermekGomb">+ Új cipő felvitele</button>
+            </div>
+            <div class="tabla-doboz">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Kép</th>
+                            <th>Név</th>
+                            <th>Márka</th>
+                            <th>Ár</th>
+                            <th>Méret</th>
+                            <th>Szín</th>
+                            <th>Készlet</th>
+                            <th>Műveletek</th>
+                        </tr>
+                    </thead>
+                    <tbody id="termekTabla"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ---------------- Megrendelések ---------------- -->
+        <section class="lap" id="lap-rendelesek">
+            <div class="szekcio-fejlec">
+                <h2>Megrendelések</h2>
+            </div>
+            <div class="tabla-doboz">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Vásárló</th>
+                            <th>Dátum</th>
+                            <th>Tételek</th>
+                            <th>Végösszeg</th>
+                            <th>Állapot</th>
+                            <th>Műveletek</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rendelesTabla"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ---------------- Felhasználók ---------------- -->
+        <section class="lap" id="lap-felhasznalok">
+            <div class="szekcio-fejlec">
+                <h2>Felhasználók</h2>
+                <button class="gomb" id="ujFelhasznaloGomb">+ Új felhasználó</button>
+            </div>
+            <div class="tabla-doboz">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Felhasználónév</th>
+                            <th>E-mail</th>
+                            <th>Név</th>
+                            <th>Telefon</th>
+                            <th>Szerepkör</th>
+                            <th>Regisztrált</th>
+                            <th>Műveletek</th>
+                        </tr>
+                    </thead>
+                    <tbody id="felhasznaloTabla"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ---------------- Termék modális űrlap ---------------- -->
+    <div class="modal-hatter" id="termekModal">
+        <div class="modal">
+            <div class="modal-fejlec">
+                <h2 id="termekModalCim">Új cipő</h2>
+                <button class="bezaras" data-bezar="termekModal">&times;</button>
+            </div>
+            <form id="termekUrlap">
+                <input type="hidden" id="termekId">
+
+                <div class="mezo">
+                    <label for="tNev">Név *</label>
+                    <input type="text" id="tNev" required maxlength="150">
+                </div>
+
+                <div class="mezo-sor">
+                    <div class="mezo">
+                        <label for="tMarka">Márka *</label>
+                        <input type="text" id="tMarka" required maxlength="50">
+                    </div>
+                    <div class="mezo">
+                        <label for="tSzin">Szín</label>
+                        <input type="text" id="tSzin" maxlength="50">
+                    </div>
+                </div>
+
+                <div class="mezo-sor">
+                    <div class="mezo">
+                        <label for="tAr">Ár (Ft) *</label>
+                        <input type="number" id="tAr" required min="0" step="10">
+                    </div>
+                    <div class="mezo">
+                        <label for="tMeret">Méret *</label>
+                        <input type="number" id="tMeret" required min="20" max="60">
+                    </div>
+                    <div class="mezo">
+                        <label for="tKeszlet">Készlet *</label>
+                        <input type="number" id="tKeszlet" required min="0">
+                    </div>
+                </div>
+
+                <div class="mezo">
+                    <label for="tLeiras">Leírás</label>
+                    <textarea id="tLeiras" maxlength="1000"></textarea>
+                </div>
+
+                <div class="mezo">
+                    <label for="tKepFajl">Kép feltöltése</label>
+                    <input type="file" id="tKepFajl" accept="image/*">
+                </div>
+
+                <div class="mezo">
+                    <label for="tKepUrl">Kép útvonala</label>
+                    <input type="text" id="tKepUrl" placeholder="/images/pelda.jpg">
+                </div>
+
+                <div class="gomb-sor">
+                    <button type="button" class="gomb gomb-masodlagos" data-bezar="termekModal">Mégse</button>
+                    <button type="submit" class="gomb">Mentés</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ---------------- Felhasználó modális űrlap ---------------- -->
+    <div class="modal-hatter" id="felhasznaloModal">
+        <div class="modal">
+            <div class="modal-fejlec">
+                <h2 id="felhasznaloModalCim">Új felhasználó</h2>
+                <button class="bezaras" data-bezar="felhasznaloModal">&times;</button>
+            </div>
+            <form id="felhasznaloUrlap">
+                <input type="hidden" id="felhasznaloId">
+
+                <div class="mezo-sor">
+                    <div class="mezo">
+                        <label for="fNev">Felhasználónév *</label>
+                        <input type="text" id="fNev" required minlength="3" maxlength="50">
+                    </div>
+                    <div class="mezo">
+                        <label for="fEmail">E-mail *</label>
+                        <input type="email" id="fEmail" required maxlength="100">
+                    </div>
+                </div>
+
+                <div class="mezo-sor">
+                    <div class="mezo">
+                        <label for="fTeljesNev">Teljes név</label>
+                        <input type="text" id="fTeljesNev" maxlength="100">
+                    </div>
+                    <div class="mezo">
+                        <label for="fTelefon">Telefon</label>
+                        <input type="text" id="fTelefon" maxlength="30">
+                    </div>
+                </div>
+
+                <div class="mezo">
+                    <label for="fCim">Cím</label>
+                    <input type="text" id="fCim" maxlength="200">
+                </div>
+
+                <div class="mezo-sor">
+                    <div class="mezo">
+                        <label for="fSzerep">Szerepkör *</label>
+                        <select id="fSzerep">
+                            <option value="User">User (vásárló)</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="mezo">
+                        <label for="fJelszo">Jelszó <span id="jelszoMegj">(módosításnál üresen hagyható)</span></label>
+                        <input type="password" id="fJelszo" minlength="4">
+                    </div>
+                </div>
+
+                <div class="gomb-sor">
+                    <button type="button" class="gomb gomb-masodlagos" data-bezar="felhasznaloModal">Mégse</button>
+                    <button type="submit" class="gomb">Mentés</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">SneekerWebShop &copy; 2026 - vizsgaremek projekt</div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>
