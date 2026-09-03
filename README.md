@@ -1,21 +1,21 @@
-# SneekerWebShop
+SneekerWebShop
 
 Sportcipő webáruház admin felülettel. Szoftverfejlesztő tanfolyam vizsgaremek projekt.
 
-| Réteg | Technológia |
-|---|---|
-| Adatbázis | MySQL 8 + Entity Framework Core (Code First migráció) |
-| Backend | ASP.NET Core Web API (net10.0), JWT Bearer authentikáció, LINQ |
-| Frontend | HTML5, CSS3, vanilla JavaScript, `fetch()` – keretrendszer nélkül |
+Réteg, Technológia
 
-## Előfeltételek
+Adatbázis : MySQL 8 + Entity Framework Core (Code First migráció) 
+Backend : ASP.NET Core Web API (net10.0), JWT Bearer authentikáció, LINQ 
+Frontend : HTML5, CSS3, vanilla JavaScript, `fetch()` – keretrendszer nélkül
+
+Előfeltételek
 
 - .NET SDK 10 vagy újabb
 - Futó MySQL-kiszolgáló (`localhost:3306`, `root` felhasználó, üres jelszó – XAMPP/WAMP is jó)
 
 A kapcsolati sztring a `Backend/SneekerWebShop.Api/appsettings.json` fájlban módosítható.
 
-## Indítás
+Indítás
 
 ```bash
 cd Backend/SneekerWebShop.Api && dotnet run
@@ -27,22 +27,21 @@ a backendet és a frontendet is:
 - Webáruház: <http://localhost:5000>
 - API dokumentáció (Swagger): <http://localhost:5000/swagger>
 
-## Belépési adatok
+Belépési adatok
 
-| Szerepkör | E-mail | Jelszó |
-|---|---|---|
-| Admin | `admin@gmail.com` | `admin` |
+Szerepkör | E-mail            | Jelszó |
+Admin 	  | `admin@gmail.com` | `admin` |
 
 Vásárlói fiókot a Regisztráció menüpontban lehet létrehozni; a nyilvános regisztrációval
 létrejövő fiókok mindig `User` szerepkört kapnak.
 
-## Jogosultsági körök
+Jogosultsági körök
 
 - **Nem regisztrált látogató** – a cipők böngészése, keresés, márkaszűrés
 - **User** – bejelentkezés, kosár, megrendelés leadása, saját rendelések megtekintése
 - **Admin** – teljes CRUD a termékeken, megrendeléseken és felhasználókon, képfeltöltés
 
-## Mappaszerkezet
+Mappaszerkezet
 
 ```
 Backend/SneekerWebShop.Api/   ASP.NET Core Web API
@@ -69,7 +68,7 @@ Documents/
 └─ screenshots/               a dokumentáció képei
 ```
 
-## Hasznos parancsok
+Hasznos parancsok
 
 ```bash
 # Az adatbázis kézi létrehozása / frissítése
@@ -79,7 +78,7 @@ cd Backend/SneekerWebShop.Api && dotnet ef database update
 mysql -u root -e "drop database sneekerwebshop;"
 ```
 
-## Megjegyzések a megvalósításról
+Megjegyzések a megvalósításról
 
 - Az Identity csomagot **kizárólag** a jelszóhasheléshez (`PasswordHasher`) használjuk;
   nincs `IdentityDbContext`, és az Identity saját táblái nincsenek migrálva az adatbázisba.
